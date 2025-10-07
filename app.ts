@@ -54,7 +54,6 @@ app.use("/customers/register", register);
 app.use("/admin", admin);
 app.use("/customers/update-profile", updateProfile);
 app.use("/customers/editprofile", editprofile);
-
 app.use("/upload", cloudinary);
 
 
