@@ -4,10 +4,15 @@ import bodyParser from "body-parser";
 import { router as upload } from "./controller/upload";
 import { router as login } from "./controller/login";
 import { router as register } from "./controller/register";
+import { router as newgame } from "./controller/adminnewgame";
 import { router as admin } from "./controller/admin";
 import { router as editprofile } from "./controller/editprofile";
 import { router as updateProfile } from "./controller/updateProfile";
 import { router as cloudinary } from "./controller/cloudinaryUpload";
+import { router as getgame } from "./controller/getgame";
+import { router as deletegame } from "./controller/deletegame";
+import { router as getgamebyid } from "./controller/getgamebyid";
+import { router as updategame } from "./controller/updategame";
 
 import cors from "cors";
 import { generateToken, jwtAuthen, secret } from "./jwtauth";
@@ -49,14 +54,22 @@ app.use("/", index);
 // app.use("/uploads", express.static("uploads"));
 // app.use("/upload", express.static(path.join(process.cwd(), "uploads")));
 
+
+//user
 app.use("/customers/login", login);
 app.use("/customers/register", register);
-app.use("/admin", admin);
+
 app.use("/customers/update-profile", updateProfile);
 app.use("/customers/editprofile", editprofile);
 app.use("/upload", cloudinary);
 
-
+//admin
+app.use("/admin", admin);
+app.use("/admin/getgame",getgame );
+app.use("/admin/newgame", newgame);
+app.use("/admin/deletegame", deletegame);
+app.use("/admin/getGameById", getgamebyid);
+app.use("/admin/updategame", updategame);
 
 app.use("/getprofiledata",jwtAuthen, (req, res) => {
   const user_id = req.query.user_id as string;

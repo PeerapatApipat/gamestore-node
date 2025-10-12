@@ -1,13 +1,10 @@
 import express, { Request, Response } from "express";
 import { conn } from "../dbconnect";
-import mysql from "mysql";
-import bcrypt from "bcrypt";
+
 import { FileMiddleware } from "./upload";
 import { jwtAuthen } from "../jwtauth";
 
-import axios from "axios";
-import FormData from "form-data";
-import fs from "fs";
+
 export const router = express.Router();
 const fileUpload = new FileMiddleware();
 
