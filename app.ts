@@ -13,6 +13,11 @@ import { router as getgame } from "./controller/getgame";
 import { router as deletegame } from "./controller/deletegame";
 import { router as getgamebyid } from "./controller/getgamebyid";
 import { router as updategame } from "./controller/updategame";
+import { router as admintransaction } from "./controller/adminTransaction";
+import { router as wallet } from "./controller/wallet";
+import { router as topup } from "./controller/topUp";
+import { router as transaction } from "./controller/transaction";
+import { router as purchase } from "./controller/purchase";
 
 import cors from "cors";
 import { generateToken, jwtAuthen, secret } from "./jwtauth";
@@ -62,6 +67,10 @@ app.use("/customers/register", register);
 app.use("/customers/update-profile", updateProfile);
 app.use("/customers/editprofile", editprofile);
 app.use("/upload", cloudinary);
+app.use("/wallet", wallet);
+app.use("/topup", topup);
+app.use("/history", transaction);
+app.use("/purchase", purchase);
 
 //admin
 app.use("/admin", admin);
@@ -70,6 +79,7 @@ app.use("/admin/newgame", newgame);
 app.use("/admin/deletegame", deletegame);
 app.use("/admin/getGameById", getgamebyid);
 app.use("/admin/updategame", updategame);
+app.use("/admin/history", admintransaction);
 
 app.use("/getprofiledata",jwtAuthen, (req, res) => {
   const user_id = req.query.user_id as string;
