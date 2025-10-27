@@ -42,7 +42,7 @@ router.post("/", (req, res) => {
             });
           }
 
-          // 3️⃣ commit transaction
+          // 3️ commit transaction
           connection.commit((err) => {
             if (err) {
               return connection.rollback(() => {

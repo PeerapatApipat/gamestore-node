@@ -1,11 +1,11 @@
-// 📁 routes/purchase.ts
+// routes/purchase.ts
 import express from "express";
 import { conn } from "../dbconnect";
 import { jwtAuthen } from "../jwtauth";
 
 export const router = express.Router();
 
-// 💳 ซื้อเกม (ตัดเงินจาก Wallet)
+// ซื้อเกม (ตัดเงินจาก Wallet)
 router.post("/", jwtAuthen, (req: any, res) => {
   const authData = req.auth;
   const userId = authData?.userId;
@@ -95,6 +95,7 @@ router.post("/", jwtAuthen, (req: any, res) => {
         });
 
         let finalPrice = totalPrice;
+        let discountPercent = 0;
         if (discount_code) {
           const discountRow: any = await new Promise((resolve, reject) => {
             connection.query(
@@ -107,29 +108,31 @@ router.post("/", jwtAuthen, (req: any, res) => {
             );
           });
 
-          if (discountRow) {
-            const today = new Date();
-            const expireDate = new Date(discountRow.expire_date);
-            if (discountRow.expire_date && today > expireDate) {
-              throw new Error("โค้ดส่วนลดหมดอายุ");
-            }
-            if (
-              discountRow.max_uses &&
-              discountRow.used_count >= discountRow.max_uses
-            ) {
-              throw new Error("โค้ดส่วนลดถูกใช้ครบแล้ว");
-            }
-
-            finalPrice = finalPrice * (1 - discountRow.discount_percent / 100);
-
-            await new Promise((resolve, reject) => {
-              connection.query(
-                "UPDATE discount_codes SET used_count = used_count + 1 WHERE code = ?",
-                [discount_code],
-                (err) => (err ? reject(err) : resolve(true))
-              );
-            });
+          if (!discountRow) {
+            throw new Error("ไม่พบโค้ดส่วนลดนี้");
           }
+
+          const today = new Date();
+          const expireDate = new Date(discountRow.expire_date);
+          if (discountRow.expire_date && today > expireDate) {
+            throw new Error("โค้ดส่วนลดหมดอายุ");
+          }
+
+          discountPercent = discountRow.discount_percent;
+
+          const updateCodeResult: any = await new Promise((resolve, reject) => {
+            connection.query(
+              "UPDATE discount_codes SET used_count = used_count + 1 WHERE code = ? AND used_count < max_uses",
+              [discount_code],
+              (err, result) => (err ? reject(err) : resolve(result))
+            );
+          });
+
+          if (updateCodeResult.affectedRows === 0) {
+            throw new Error("โค้ดส่วนลดถูกใช้ครบตามจำนวนแล้ว");
+          }
+
+          finalPrice = finalPrice * (1 - discountPercent / 100);
         }
 
         if (walletBalance < finalPrice) {
@@ -138,7 +141,7 @@ router.post("/", jwtAuthen, (req: any, res) => {
 
         const remainingBalance = walletBalance - finalPrice;
         console.log(`
-          --- 📝 สรุปรายการซื้อ ---
+       
           👤 ชื่อผู้ซื้อ: ${username} (ID: ${userId})
           💰 ยอดเงินเริ่มต้น: ${walletBalance.toFixed(2)} บาท
           💸 ยอดที่ต้องชำระ: ${finalPrice.toFixed(2)} บาท
@@ -192,7 +195,7 @@ router.post("/", jwtAuthen, (req: any, res) => {
         });
       } catch (error: any) {
         connection.rollback(() => connection.release());
-        console.error("❌ เกิดข้อผิดพลาดใน try-catch block:", error.message);
+        console.error("เกิดข้อผิดพลาดใน try-catch block:", error.message);
         res.status(400).json({ message: error.message });
       }
     });

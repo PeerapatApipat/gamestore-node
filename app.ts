@@ -16,8 +16,13 @@ import { router as updategame } from "./controller/updategame";
 import { router as admintransaction } from "./controller/adminTransaction";
 import { router as wallet } from "./controller/wallet";
 import { router as topup } from "./controller/topUp";
-import { router as transaction } from "./controller/transaction";
+import { router as transaction } from "./controller/transaction";   
 import { router as purchase } from "./controller/purchase";
+import { router as adminDiscounts } from "./controller/adminDiscounts";
+import { router as cart } from "./controller/cart";
+import { router as ranking } from "./controller/ranking";
+import { router as addgametocart } from "./controller/addgametocart";
+import { router as library } from "./controller/library"; 
 
 import cors from "cors";
 import { generateToken, jwtAuthen, secret } from "./jwtauth";
@@ -80,6 +85,14 @@ app.use("/admin/deletegame", deletegame);
 app.use("/admin/getGameById", getgamebyid);
 app.use("/admin/updategame", updategame);
 app.use("/admin/history", admintransaction);
+
+
+//ล่าสุด
+app.use("/admin/discounts", adminDiscounts);
+app.use("/cart", cart);
+app.use("/ranking", ranking);
+app.use("/addgametocart",addgametocart );
+app.use("/library", library);
 
 app.use("/getprofiledata",jwtAuthen, (req, res) => {
   const user_id = req.query.user_id as string;
